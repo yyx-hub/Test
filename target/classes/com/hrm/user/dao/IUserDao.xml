@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.user.dao.IUserDao">
+
+    <select id="selectUserByLoginUser" resultType="User">
+        select * from user_inf
+        where loginname=#{loginname}
+        and password=#{password}
+    </select>
+
+
+    <select id="selectUser"  resultType="User">
+        select * from user_inf
+        <where>
+            <if test="user.username != null and user.username != ''">
+                username like "%" #{user.username} "%"
+            </if>
+            <if test="user.status != null and user.status != ''">
+               and status = #{user.status}
+             </if>
+        </where>
+        limit #{pageModel.firstLimitParam},#{pageModel.pageSize}
+    </select>
+
+    <select id="selectUserCount" resultType="int">
+        select count(*) from user_inf
+        <where>
+            <if test="username != null and username != ''">
+                username like "%" #{username} "%"
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectUserById" resultType="User">
+        select * from user_inf where id =#{id}
+    </select>
+    
+    <update id="updateUser">
+        update user_inf
+        set loginname=#{loginname},password=#{password},username=#{username},status=#{status}
+        where id = #{id}
+    </update>
+
+    <insert id="insertUser">
+        insert into user_inf (loginname,password,username,status)
+        values (#{loginname},#{password},#{username},#{status})
+    </insert>
+
+    <delete id="deleteUser">
+        delete from user_inf where id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+           </foreach>
+
+    </delete>
+
+    <select id="selectLoginname" resultType="User">
+        select * from user_inf where loginname=#{loginname}
+    </select>
+</mapper>

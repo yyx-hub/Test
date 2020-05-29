@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+
+<!--    注册平台事务管理器-->
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="myDataSource"/>
+
+    </bean>
+
+
+<!--    注册事务通知-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+<!--        注册指定连接点-->
+        <tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED" isolation="DEFAULT"/>
+            <tx:method name="remove*" propagation="REQUIRED" isolation="DEFAULT"/>
+            <tx:method name="modify*" propagation="REQUIRED" isolation="DEFAULT"/>
+            <tx:method name="find*" propagation="REQUIRED" isolation="DEFAULT" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+<!--    AOP配置-->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* *..service.*.*(..))"/>
+    </aop:config>
+
+
+</beans>

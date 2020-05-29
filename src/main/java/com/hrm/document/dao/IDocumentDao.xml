@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.document.dao.IDocumentDao">
+
+    <!--查询-->
+    <select id="selectUserById" resultType="User">
+        select * from user_inf where id = #{user_id}
+    </select>
+    <resultMap id="documentMap" type="Document">
+        <id column="id" property="id"/>
+        <association property="user"
+                     javaType="User"
+                     select="selectUserById"
+                     column="user_id"/>
+    </resultMap>
+    <select id="selectDocument" resultMap="documentMap">
+        select * from document_inf
+    <where>
+        <if test="title != null and title !=''">
+            title = #{title}
+        </if>
+    </where>
+    limit #{start},#{pageSize}
+    </select>
+    <!--查询记录数-->
+    <select id="selectDocumentCount" resultType="int">
+        select count(*) from document_inf
+        <where>
+            <if test="title != null and title != ''">
+                title = #{title}
+            </if>
+        </where>
+    </select>
+
+<!--插入即上传文件-->
+    <insert id="insertDocument">
+    insert into document_inf (title,filename,remark,user_id) values (#{title},#{filename},#{remark},#{user.id})
+    </insert>
+
+    <!--修改里的按id查询-->
+    <select id="selectDocumentById" resultMap="documentMap">
+        select * from document_inf where id = #{id}
+    </select>
+    <!--修改信息-->
+    <!--为了保证filename只修改名称后文件名仍然不为空，就需要动态sql为他赋值-->
+    <update id="updateDocument">
+        update document_inf
+        <set>
+            <if test="title != null and title !=''">
+                title = #{title},
+            </if>
+            <if test="filename != null and filename !=''">
+                filename = #{filename},
+            </if>
+            <if test="remark != null and remark !=''">
+                remark = #{remark}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteDocument">
+        delete from document_inf where id = #{id}
+    </delete>
+</mapper>

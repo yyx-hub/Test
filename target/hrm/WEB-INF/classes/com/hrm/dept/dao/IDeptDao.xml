@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.dept.dao.IDeptDao">
+    
+    <select id="selectDept" resultType="Dept">
+        select * from dept_inf
+        <where>
+            <if test="name != null and name !=''">
+                name like '%' #{name}'%'
+            </if>
+        </where>
+        limit #{pageModel.firstLimitParam},#{pageModel.pageSize}
+    </select>
+
+    <select id="selectDeptCount" resultType="int">
+        select count(*) from dept_inf
+        <where>
+            <if test="name != null and name !=''">
+                name like '%' #{name}'%'
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeptById" resultType="Dept">
+        select * from dept_inf where id = #{id}
+    </select>
+
+    <update id="updateDept">
+        update dept_inf set name=#{name},remark=#{remark} where id = #{id}
+    </update>
+    
+    <delete id="deleteDept">
+        delete from dept_inf where id in
+     <!--  循环数组时，collection写array，列表时，写list 或者在Dao接口参数前加入@Param（“ids”）
+那么collection可以直接写ids-->
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertDept">
+        insert into dept_inf (name,remark) values (#{name},#{remark})
+    </insert>
+</mapper>

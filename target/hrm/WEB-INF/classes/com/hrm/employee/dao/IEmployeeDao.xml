@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.employee.dao.IEmployeeDao">
+    <!--查询全部职位-->
+    <select id="selectAllJob" resultType="Job">
+        select * from job_inf
+    </select>
+    <!--查询全部部门-->
+    <select id="selectAllDept" resultType="Dept">
+        select * from dept_inf
+    </select>
+
+
+
+    <select id="selectDeptById" resultType="Dept">
+        select * from dept_inf where id = #{dept_id}
+    </select>
+    <select id="selectJobById" resultType="Job">
+        select * from job_inf where id = #{job_id}
+    </select>
+    <!--结果映射-->
+    <resultMap id="employeeMap" type="Employee">
+        <id column="id" property="id"/>
+        <!--关联属性为对象时， 使用的时association. 用javaType表示关联属性的类型
+        关联同性为List时,使用的是collection. 用ofType表示关联属性的类型-->
+        <association property="job"
+                     javaType="Job"
+                     select="selectJobById"
+                     column="job_id"/>
+        <association property="dept"
+                     javaType="Dept"
+                     select="selectDeptById"
+                     column="dept_id"/>
+    </resultMap>
+    <!--分页查询员工-->
+    <select id="selectEmployee" resultMap="employeeMap">
+        select * from employee_inf
+        <where>
+            <if test="employee.job !=null">
+                job_id = #{employee.job.id}
+            </if>
+        <if test="employee.name !=null and employee.name !=''">
+                and name like '%' #{employee.name} '%'
+        </if>
+        <if test="employee.card_id !=null and employee.card_id !=''">
+            and card_id = #{employee.card_id}
+        </if>
+        <if test="employee.sex > 0">
+            and sex = #{employee.sex}
+        </if>
+        <if test="employee.phone !=null and employee.phone !=''">
+            and phone = #{employee.phone}
+        </if>
+        <if test="employee.dept != null">
+            and dept_id = #{employee.dept.id}
+        </if>
+
+        </where>
+        limit #{pageModel.firstLimitParam},#{pageModel.pageSize}
+    </select>
+
+    <!--查询记录数信息-->
+    <select id="selectEmployeeCount" resultType="int">
+<!--之前传过来的已经有employee对象了，所以直接使用employee的属性就可以了，不然会报错-->
+        select count(*) from employee_inf
+        <where>
+            <if test="job !=null">
+                and job_id = #{job.id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like '%' #{name} '%'
+            </if>
+            <if test="card_id != null and card_id !=''">
+                and card_id =#{card_id}
+            </if>
+            <if test="sex > 0">
+                and sex = #{sex}
+            </if>
+            <if test="phone != null and phone !=''">
+                and phone = #{phone}
+            </if>
+            <if test="dept != null">
+                and dept_id = #{dept.id}
+            </if>
+        </where>
+    </select>
+
+    <!--按照id查询employee-->
+    <select id="selectEmployeeById" resultMap="employeeMap">
+        select * from employee_inf where id =#{id}
+    </select>
+    <!--修改查询id的信息-->
+    <update id="updateEmployee">
+        update employee_inf
+        set name=#{name},card_id=#{card_id},sex=#{sex},job_id=#{job.id},education=#{education},
+            email=#{email},tel=#{tel},phone=#{phone},qq_num=#{qq_num},address=#{address},
+            post_code=#{post_code},birthday=#{birthday},race=#{race},speciality=#{speciality},
+            hobby=#{hobby},remark=#{remark},dept_id=#{dept.id}
+            where id = #{id}
+    </update>
+
+    <!--删除员工信息-->
+    <delete id="deleteEmployee">
+        delete from employee_inf where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--添加员工信息-->
+    <insert id="insertEmployee">
+        insert into employee_inf
+        (name,card_id,sex,job_id,education,email,phone,tel,party,qq_num,address,post_code,birthday,race,speciality,hobby,remark,dept_id)
+        values (#{name},#{card_id},#{sex},#{job.id},#{education},#{email},#{phone},#{tel},
+        #{party},#{qq_num},#{address},#{post_code},#{birthday}, #{race},#{speciality},#{hobby},#{remark},#{dept.id})
+    </insert>
+</mapper>
